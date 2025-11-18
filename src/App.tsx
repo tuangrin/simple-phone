@@ -8,6 +8,9 @@ function App() {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [isCalling, setIsCalling] = useState(false);
   const [isShowMenu, setIsShowMenu] = useState(false);
+  const [isShowAnswerBtn, setIsShowAnswerBtn] = useState(true);
+  const [isShowEndBtn, setIsShowEndBtn] = useState(false);
+  const [showHide, setShowHide] = useState(false);
 
   const onAddNumber = (text: string) => {
     setPhoneNumber((prev) => prev + text);
@@ -19,17 +22,40 @@ function App() {
 
   const onCallClick = () => {
     if (phoneNumber) {
+      setIsShowEndBtn(true);
       setShowDialPad(false);
+      setIsShowAnswerBtn(false);
       setIsCalling(true);
+      setIsShowMenu(true);
+      setTimeout(() => {
+        setIsCalling(false);
+      }, 2000);
     }
   };
 
-  const onSetMenu = () => {};
+  const onSetMenu = () => {
+    setIsShowMenu(false);
+    setShowDialPad(true);
+    setShowHide(true);
+  };
 
   const onReset = () => {
     setPhoneNumber('');
     setShowDialPad(true);
+    setIsShowAnswerBtn(true);
     setIsCalling(false);
+    setIsShowEndBtn(false);
+    setIsShowMenu(false);
+  };
+
+  const onHangup = () => {
+    onReset();
+  };
+
+  const onCloseKeypad = () => {
+    setShowHide(false);
+    setShowDialPad(false);
+    setIsShowMenu(true);
   };
 
   return (
@@ -60,20 +86,42 @@ function App() {
               )}
             </div>
             {isCalling && <small className='mt-0.5'>Calling...</small>}
-            {/* isShowMenu */}
-            {/* <Menu onSetMenu={onSetMenu} /> */}
+            {isShowMenu && <Menu onSetMenu={onSetMenu} />}
 
             {showDialPad && (
               <div className='flex flex-col items-center gap-y-8'>
                 <DialPad onAddNumber={onAddNumber} />
+                {isShowAnswerBtn && (
+                  <div
+                    onClick={() => onCallClick()}
+                    className='bg-lime-400 hover:bg-lime-300 shadow-lg rounded-full h-14 w-14 p-0 flex justify-center items-center cursor-pointer'
+                  >
+                    <div className='h-5 w-5'>
+                      <img className='' src='/src/assets/icon/PhoneIcon.svg' alt='Phone Icon' />
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+            {isShowEndBtn && (
+              <div className='mt-8 grid grid-cols-3 w-full place-items-center'>
                 <div
-                  onClick={() => onCallClick()}
-                  className='bg-lime-400 hover:bg-lime-300 shadow-lg rounded-full h-15 w-15 p-0 flex justify-center items-center cursor-pointer'
+                  onClick={() => onHangup()}
+                  className=' col-start-2 bg-rose-600 hover:bg-rose-500 shadow-lg rounded-full h-14 w-14 p-0 flex justify-center items-center cursor-pointer'
                 >
                   <div className='h-5 w-5'>
                     <img className='' src='/src/assets/icon/PhoneIcon.svg' alt='Phone Icon' />
                   </div>
                 </div>
+
+                {showHide && (
+                  <span
+                    onClick={() => onCloseKeypad()}
+                    className='text-xs text-slate-700 hover:text-slate-500 cursor-pointer'
+                  >
+                    Hide
+                  </span>
+                )}
               </div>
             )}
           </div>

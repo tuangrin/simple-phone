@@ -62,6 +62,10 @@ const Menu = ({ onSetMenu }: MenuProps) => {
 </g>
 </svg>
     `;
+
+  interface MenuType {
+    label: string;
+  }
   const [menu, setMenu] = useState([
     {
       label: 'mute',
@@ -77,13 +81,16 @@ const Menu = ({ onSetMenu }: MenuProps) => {
     },
   ]);
 
-  const onClickMenu = () => {
-    onSetMenu();
+  const onClickMenu = (e: string) => {
+    // onSetMenu();
+    if (e == 'keypad') {
+      onSetMenu();
+    }
   };
 
   return (
     <>
-      <div>
+      <div className='mt-2'>
         <div className='grid grid-cols-3 gap-3'>
           {menu.map((e, i) => (
             <div>
@@ -91,7 +98,7 @@ const Menu = ({ onSetMenu }: MenuProps) => {
                 key={i}
                 className='bg-white hover:bg-slate-100 hover:text-slate-800 drop-shadow-lg
               gap-y-1 rounded-full aspect-square p-2 flex flex-col justify-center items-center cursor-pointer'
-                onClick={() => onClickMenu}
+                onClick={() => onClickMenu(e.label)}
               >
                 <div className='w-5 h-5'>
                   <div dangerouslySetInnerHTML={{ __html: e.icon }}></div>
