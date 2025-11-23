@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './App.css';
 import DialPad from './component/DialPad/DialPad';
 import Menu from './component/Menu/Menu';
@@ -7,6 +7,7 @@ function App() {
   const [showDialPad, setShowDialPad] = useState(true);
   const [phoneNumber, setPhoneNumber] = useState('');
   const [isCalling, setIsCalling] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const [isShowMenu, setIsShowMenu] = useState(false);
   const [isShowAnswerBtn, setIsShowAnswerBtn] = useState(true);
   const [isShowEndBtn, setIsShowEndBtn] = useState(false);
@@ -25,8 +26,12 @@ function App() {
       setIsShowEndBtn(true);
       setShowDialPad(false);
       setIsShowAnswerBtn(false);
-      setIsCalling(true);
+      if (!isMobile) {
+        setIsCalling(true);
+      }
       setIsShowMenu(true);
+      setIsMobile(false);
+
       setTimeout(() => {
         setIsCalling(false);
       }, 2000);
@@ -46,6 +51,7 @@ function App() {
     setIsCalling(false);
     setIsShowEndBtn(false);
     setIsShowMenu(false);
+    setIsMobile(false);
   };
 
   const onHangup = () => {
@@ -58,12 +64,39 @@ function App() {
     setIsShowMenu(true);
   };
 
+  const onIncoming = () => {
+    setPhoneNumber('0812345678');
+    setShowDialPad(false);
+    setIsShowEndBtn(true);
+    setIsMobile(true);
+    onCallClick();
+  };
+
+  useEffect(() => {
+    const handleKeyPress = (e: any) => {
+      if (/[0-9]/.test(e.key)) {
+        setPhoneNumber((prev) => prev + e.key);
+      }
+
+      if (e.key === 'Backspace') {
+        setPhoneNumber((prev) => prev.slice(0, -1));
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyPress);
+
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, []);
+
   return (
     <>
       <div className='w-screen h-screen flex justify-center items-center bg-blue-950'>
         <div className='bg-white rounded-4xl h-3/4 w-2/6 flex flex-col items-center p-7 xl:p-10 gap-3'>
           <div className='flex gap-2'>
-            <button className='bg-slate-300 hover:opacity-80 cursor-pointer px-3 py-2 rounded text-slate-600'>
+            <button
+              onClick={onIncoming}
+              className='bg-slate-300 hover:opacity-80 cursor-pointer px-3 py-2 rounded text-slate-600'
+            >
               Inbound Call
             </button>
             <button
@@ -74,56 +107,64 @@ function App() {
             </button>
           </div>
 
-          <div className='bg-slate-50 shadow-md p-5 flex flex-col items-center h-[470px] w-[270px]'>
-            <div className='max-w-[200px] text-center grid grid-cols-12 place-items-center gap-x-1 text-base lg:text-lg xl:text-2xl my-2 h-6'>
-              <span className='col-span-11 truncate overflow-hidden text-ellipsis whitespace-nowrap w-full'>
-                {phoneNumber ?? '\u00A0'}
-              </span>
-              {showDialPad && (
-                <div className='h-5 w-5 col-span-1 cursor-pointer'>
-                  <img src='/src/assets/icon/DeleteIcon.svg' alt='Delete Icon' onClick={() => onDeleteNumber()} />
-                </div>
-              )}
+          <div className={`bg-slate-50 shadow-md p-5 flex flex-col items-center h-[470px] w-[270px] justify-between`}>
+            <div className='max-w-[200px] text-center  gap-x-1 text-base lg:text-lg xl:text-2xl my-2 h-6'>
+              <div className='grid grid-cols-12 place-items-center'>
+                <span className='col-span-11 truncate overflow-hidden text-ellipsis whitespace-nowrap w-full'>
+                  {phoneNumber ?? '\u00A0'}
+                </span>
+                {showDialPad && (
+                  <div className='h-5 w-5 col-span-1 cursor-pointer'>
+                    <img src='/src/assets/icon/DeleteIcon.svg' alt='Delete Icon' onClick={() => onDeleteNumber()} />
+                  </div>
+                )}
+              </div>
+
+              <div className='cols-1'>
+                {isCalling && <small className='mt-0.5'>Calling...</small>}
+                {isMobile && <small className='mt-0.5'>Mobile</small>}
+                {isShowMenu && <Menu onSetMenu={onSetMenu} />}
+              </div>
             </div>
-            {isCalling && <small className='mt-0.5'>Calling...</small>}
-            {isShowMenu && <Menu onSetMenu={onSetMenu} />}
 
             {showDialPad && (
               <div className='flex flex-col items-center gap-y-8'>
                 <DialPad onAddNumber={onAddNumber} />
-                {isShowAnswerBtn && (
-                  <div
-                    onClick={() => onCallClick()}
-                    className='bg-lime-400 hover:bg-lime-300 shadow-lg rounded-full h-14 w-14 p-0 flex justify-center items-center cursor-pointer'
-                  >
-                    <div className='h-5 w-5'>
-                      <img className='' src='/src/assets/icon/PhoneIcon.svg' alt='Phone Icon' />
-                    </div>
-                  </div>
-                )}
               </div>
             )}
-            {isShowEndBtn && (
-              <div className='mt-8 grid grid-cols-3 w-full place-items-center'>
+            <div className={`flex ${isShowEndBtn && isMobile ? 'justify-between' : 'justify-center'} w-full mt-8`}>
+              {isShowAnswerBtn && (
                 <div
-                  onClick={() => onHangup()}
-                  className=' col-start-2 bg-rose-600 hover:bg-rose-500 shadow-lg rounded-full h-14 w-14 p-0 flex justify-center items-center cursor-pointer'
+                  onClick={() => onCallClick()}
+                  className='bg-lime-400 hover:bg-lime-300 shadow-lg rounded-full h-14 w-14 p-0 flex justify-center items-center cursor-pointer'
                 >
                   <div className='h-5 w-5'>
                     <img className='' src='/src/assets/icon/PhoneIcon.svg' alt='Phone Icon' />
                   </div>
                 </div>
-
-                {showHide && (
-                  <span
-                    onClick={() => onCloseKeypad()}
-                    className='text-xs text-slate-700 hover:text-slate-500 cursor-pointer'
+              )}
+              {isShowEndBtn && (
+                <div className=''>
+                  <div
+                    onClick={() => onHangup()}
+                    className=' col-start-2 bg-rose-600 hover:bg-rose-500 shadow-lg rounded-full h-14 w-14 p-0 flex justify-center items-center cursor-pointer'
                   >
-                    Hide
-                  </span>
-                )}
-              </div>
-            )}
+                    <div className='h-5 w-5 rotate-135'>
+                      <img className='' src='/src/assets/icon/PhoneIcon.svg' alt='Phone Icon' />
+                    </div>
+                  </div>
+
+                  {showHide && (
+                    <span
+                      onClick={() => onCloseKeypad()}
+                      className='text-xs text-slate-700 hover:text-slate-500 cursor-pointer'
+                    >
+                      Hide
+                    </span>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>

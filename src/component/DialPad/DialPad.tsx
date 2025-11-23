@@ -56,20 +56,9 @@ const DialPad: React.FC<ChildProps> = ({ onAddNumber }) => {
     },
   ]);
 
-  const [phoneNumber, setPhoneNumber] = useState('');
-
   return (
     <>
       <div className='rounded-lg flex flex-col items-center gap-3'>
-        {/* <div className='max-w-[200px] text-center grid grid-cols-12 place-items-center gap-x-1 text-base lg:text-lg xl:text-2xl my-2 h-6'>
-          <span className='col-span-11 truncate overflow-hidden text-ellipsis whitespace-nowrap w-full'>
-            {phoneNumber ?? '\u00A0'}
-          </span>
-          <div className='h-5 w-5 col-span-1 cursor-pointer'>
-            <img src='/src/assets/icon/DeleteIcon.svg' alt='Delete Icon' onClick={() => onDeleteNumber()} />
-          </div>
-        </div> */}
-
         <div className='grid grid-cols-3 gap-3'>
           {numpad.map((e, i) => (
             <div
@@ -83,14 +72,6 @@ const DialPad: React.FC<ChildProps> = ({ onAddNumber }) => {
             </div>
           ))}
         </div>
-        {/* <div
-          onClick={() => onMakeCall()}
-          className='bg-lime-400 hover:bg-lime-300 mt-3 shadow-lg rounded-full h-15 w-15 p-0 flex justify-center items-center cursor-pointer'
-        >
-          <div className='h-5 w-5'>
-            <img className='' src='/src/assets/icon/PhoneIcon.svg' alt='Phone Icon' />
-          </div>
-        </div> */}
       </div>
     </>
   );

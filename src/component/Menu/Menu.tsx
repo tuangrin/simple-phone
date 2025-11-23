@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import DialPad from '../DialPad/DialPad';
 
 interface MenuProps {
   onSetMenu: () => void;
@@ -82,7 +81,6 @@ const Menu = ({ onSetMenu }: MenuProps) => {
   ]);
 
   const onClickMenu = (e: string) => {
-    // onSetMenu();
     if (e == 'keypad') {
       onSetMenu();
     }
